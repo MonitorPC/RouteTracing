@@ -63,5 +63,3 @@ The script will print each hop number, the IP address and hostname (if resolvabl
 * **Scapy:**  Scapy is a powerful packet manipulation library that allows you to create, send, receive, and analyze network packets.
 * **Traceroute Logic:** The code implements the basic traceroute logic by incrementing the Time-To-Live (TTL) value of the sent packets, causing routers along the path to respond.
 * **Protocol Options:** You can choose different protocols (ICMP, TCP, UDP) to see if certain hops behave differently.
-
-Let me know if you have any more questions! 
