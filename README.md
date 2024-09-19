@@ -1,106 +1,67 @@
 # Route tracing
 
-Simple route tracing programm that use Scapy library.
+This Python code uses the `scapy` library to perform a custom traceroute to a specified target IP address. Here's a breakdown of how to use it:
 
-Этот код реализует утилиту трассировки маршрута (traceroute) на Python с использованием библиотеки scapy.
+**1. Prerequisites:**
 
-**1. Импорт библиотек:**
+* **Install Python:**  Make sure you have Python installed on your system.
+* **Install Scapy:** Open your terminal or command prompt and run:
+   ```bash
+   pip install scapy
+   ```
 
-```python
-from scapy.all import *
-import sys
-import time
-import argparse
-```
+**2. Running the Script:**
 
-- `scapy.all`: Библиотека для работы с сетевыми пакетами.
-- `sys`: Предоставляет доступ к некоторым переменным и функциям, взаимодействующим с интерпретатором Python.
-- `time`: Предоставляет функции для работы со временем.
-- `argparse`: Модуль для удобного разбора аргументов командной строки.
+* **Save the code:** Save the code as a Python file (e.g., `traceroute.py`).
+* **Open your terminal or command prompt.**
+* **Run the script:** Use the following command structure:
 
-**2. Функция parser():**
+   ```bash
+   python traceroute.py <target_ip> [options]
+   ```
 
-```python
-def parser():
-    p = argparse.ArgumentParser(description="Ping the target IP with custom settings.")
-    p.add_argument("target_ip", help="The IP address of destination.")
-    p.add_argument("-p", "--protocol", default="I", help="Network protocol (default: ICMP).")
-    p.add_argument("-m", "--max_hops", default=30, help="Maximum number of hops (default: 30).", type=int)
-    p.add_argument("-t", "--timeout", default=2, help="Timeout in seconds (default: 2.0).", type=int)
-    p.add_argument("-v", "--verbose", default=False, help="Verbose mode (default: False).")
+   * **`<target_ip>`:**  Replace with the actual IP address or domain name you want to trace the route to (e.g., `8.8.8.8` or `google.com`).
+   * **[options]:** (Optional)
+      * `-p <protocol>`: Specify the network protocol to use (default: ICMP).
+         * `I`: ICMP
+         * `T`: TCP
+         * `U`: UDP
+      * `-m <max_hops>`: Set the maximum number of hops (default: 30).
+      * `-t <timeout>`:  Set the timeout in seconds for each hop (default: 2.0).
+      * `-v`: Enable verbose mode for detailed output.
 
-    args = p.parse_args()
-    return (args.protocol, args.target_ip, args.max_hops, args.timeout, args.verbose)
-```
+**Examples:**
 
-- Эта функция отвечает за разбор аргументов, переданных при запуске скрипта.
-- `argparse.ArgumentParser()` создает объект парсера аргументов.
-- `p.add_argument()`: Добавляет описание ожидаемых аргументов:
-    - "`target_ip`": Обязательный аргумент - IP-адрес назначения.
-    - "`-p`", "`--protocol`": Протокол (по умолчанию ICMP).
-    - "`-m`", "`--max_hops`": Максимальное количество прыжков (по умолчанию 30).
-    - "`-t`", "`--timeout`": Время ожидания ответа в секундах (по умолчанию 2).
-    - "`-v`", "`--verbose`": Включение подробного режима (по умолчанию выключен).
-- `p.parse_args()`: Производит разбор аргументов командной строки.
-- Функция возвращает кортеж с разобранными аргументами.
+* **Basic traceroute using ICMP:**
+   ```bash
+   python traceroute.py 8.8.8.8 
+   ```
 
-**3. Функции udp(), tcp(), icmp():**
+* **Traceroute using TCP with a maximum of 20 hops:**
+   ```bash
+   python traceroute.py google.com -p T -m 20
+   ```
 
-```python
-def udp(target_ip, max_hops, timeout, verbose):
-    # ...
-def tcp(target_ip, max_hops, timeout, verbose):
-    # ...
-def icmp(target_ip, max_hops, timeout, verbose, icmp_id=random.randint(0, 65535)):
-    # ...
-```
+* **Traceroute with verbose output:**
+   ```bash
+   python traceroute.py 192.168.1.1 -v
+   ```
 
-- Эти функции реализуют отправку и прием пакетов по протоколам UDP, TCP и ICMP соответственно.
-- Каждая функция принимает следующие аргументы:
-    - `target_ip`: IP-адрес назначения.
-    - `max_hops`: Максимальное количество прыжков.
-    - `timeout`: Время ожидания ответа.
-    - `verbose`: Флаг подробного режима.
-- Функции формируют пакет соответствующего протокола, отправляют его с помощью `sr1()` (отправка и получение одного пакета) и анализируют ответ.
-- В случае успеха возвращают строку с информацией о прыжке (номер прыжка, IP-адрес, имя хоста, время ответа) и IP-адрес.
-- В случае ошибки возвращают строку с описанием ошибки и None.
+**Understanding the Output:**
 
-**4. Словарь PROTOCOLS:**
+The script will print each hop number, the IP address and hostname (if resolvable) of the hop, and the round-trip time (RTT).  If a hop times out, you'll see `* * * Timeout`. 
 
-```python
-PROTOCOLS  = {
-    "U": udp,
-    "T": tcp,
-    "I": icmp
-}
-```
+**How it Works:**
 
-- Словарь, связывающий буквенные обозначения протоколов с соответствующими функциями.
+* **Imports:** The code starts by importing necessary modules (`scapy`, `sys`, `time`, `argparse`, `socket`).
+* **Argument Parsing:**  It uses `argparse` to handle command-line arguments, allowing you to customize the traceroute.
+* **Protocol Functions:** The `udp`, `tcp`, and `icmp` functions construct and send packets using the specified protocol and handle the responses.
+* **Main Loop:** The main part of the script iterates through the hop count, sending packets and printing the results until it reaches the target IP or the maximum hop count.
 
-**5. Основной блок кода (if __name__ == "__main__":)**:
+**Key Points:**
 
-```python
-if __name__ == "__main__":
-    args = parser()
-    protocol, target, max_hops, timeout, verbose = PROTOCOLS[args[0]], *args[1:]
-    target_ip = socket.gethostbyname(target)
+* **Scapy:**  Scapy is a powerful packet manipulation library that allows you to create, send, receive, and analyze network packets.
+* **Traceroute Logic:** The code implements the basic traceroute logic by incrementing the Time-To-Live (TTL) value of the sent packets, causing routers along the path to respond.
+* **Protocol Options:** You can choose different protocols (ICMP, TCP, UDP) to see if certain hops behave differently.
 
-    print(f"Tracing route to {target} ({target_ip}) with a maximum of {max_hops} hops:")
-    for mh in range(1, max_hops+1):
-        res = protocol(target_ip, mh, timeout, verbose)
-        print(res[0])
-        if res[1] == target_ip:
-            print("  \tAddress reached!")
-            break
-```
-
-- `if __name__ == "__main__"`: Код внутри этого блока выполнится только при запуске скрипта напрямую, а не при импорте как модуля.
-- `args = parser()`: Вызов функции `parser()` для разбора аргументов командной строки.
-- `protocol, target, ... = PROTOCOLS[args[0]], *args[1:]`: Получение функции, соответствующей выбранному протоколу, и остальных аргументов.
-- `target_ip = socket.gethostbyname(target)`: Получение IP-адреса по имени хоста.
-- Цикл `for mh in range(1, max_hops+1)`: Итерация по количеству прыжков от 1 до `max_hops`.
-- Внутри цикла:
-    - `res = protocol(target_ip, mh, timeout, verbose)`: Вызов функции, соответствующей выбранному протоколу, для отправки пакета.
-    - `print(res[0])`: Вывод информации о прыжке.
-    - `if res[1] == target_ip`: Если IP-адрес прыжка совпадает с адресом назначения, то завершаем цикл, так как маршрут построен.
-
+Let me know if you have any more questions! 
